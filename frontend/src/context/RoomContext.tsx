@@ -5,6 +5,7 @@ interface RoomContextType {
   setRoomId: (id: string) => void;
   roomInput: string;
   setRoomInput: (input: string) => void;
+  getRoomId: () => string | null;
 }
 
 const getRoomId = () => {
@@ -22,6 +23,7 @@ export function RoomProvider({ children }: { children: ReactNode }) {
     setRoomId,
     roomInput,
     setRoomInput,
+    getRoomId,
   };
 
   return <RoomContext value={value}>{children}</RoomContext>;
