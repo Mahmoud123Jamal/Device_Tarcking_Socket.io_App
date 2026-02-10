@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useRoom } from "../context/RoomContext";
+import { joinRoom } from "../socket";
 
 function InputRoom() {
-  const { setRoomInput, roomInput } = useRoom()!;
+  const { setRoomInput, roomInput, getRoomId, setRoomId } = useRoom()!;
 
   const createRoomHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -9,6 +11,12 @@ function InputRoom() {
     window.location.href = `/room/${encodeURIComponent(roomInput.trim())}`;
   };
 
+  useEffect(() => {
+    const currentRoomId = getRoomId();
+    if (!currentRoomId) return;
+    setRoomId(currentRoomId);
+    joinRoom(currentRoomId);
+  }, []);
   return (
     <div className="flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
