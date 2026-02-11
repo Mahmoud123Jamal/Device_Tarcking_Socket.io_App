@@ -16,6 +16,10 @@ function InputRoom() {
     if (!currentRoomId) return;
     setRoomId(currentRoomId);
     joinRoom(currentRoomId);
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
   }, []);
   return (
     <div className="flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
