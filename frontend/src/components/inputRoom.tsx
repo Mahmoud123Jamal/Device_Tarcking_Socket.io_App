@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRoom } from "../context/RoomContext";
 import { joinRoom } from "../socket";
-
+import { sendLocationUpdate } from "../socket";
 function InputRoom() {
   const { setRoomInput, roomInput, getRoomId, setRoomId } = useRoom()!;
 
@@ -20,7 +20,26 @@ function InputRoom() {
       alert("Geolocation is not supported by your browser");
       return;
     }
-  }, []);
+
+    const handleLocationSuccess = (position: GeolocationPosition) => {
+      const { latitude, longitude } = position.coords;
+      sendLocationUpdate({ latitude, longitude });
+    };
+
+    const handleLocationError = (error: GeolocationPositionError) => {
+      console.error("Error getting location:", error.message);
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      handleLocationSuccess,
+      handleLocationError,
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
+  }, [window.location.pathname]);
   return (
     <div className="flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
