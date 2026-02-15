@@ -6,6 +6,8 @@ interface RoomContextType {
   roomInput: string;
   setRoomInput: (input: string) => void;
   getRoomId: () => string | null;
+  users: string[];
+  setUsers: (users: string[]) => void;
 }
 
 const getRoomId = () => {
@@ -18,12 +20,15 @@ const RoomContext = createContext<RoomContextType | null>(null);
 export function RoomProvider({ children }: { children: ReactNode }) {
   const [roomId, setRoomId] = useState<string | null>(getRoomId());
   const [roomInput, setRoomInput] = useState<string>("");
+  const [users, setUsers] = useState<string[]>([]);
   const value = {
     roomId,
     setRoomId,
     roomInput,
     setRoomInput,
     getRoomId,
+    users,
+    setUsers,
   };
 
   return <RoomContext value={value}>{children}</RoomContext>;
