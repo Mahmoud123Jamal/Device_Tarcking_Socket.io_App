@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useRoom } from "../context/RoomContext";
-import { joinRoom } from "../socket";
+import socket, { joinRoom, listenforLocationUpdate } from "../socket";
 import { sendLocationUpdate } from "../socket";
 function InputRoom() {
-  const { setRoomInput, roomInput, getRoomId, setRoomId } = useRoom()!;
+  const { setRoomInput, roomInput, getRoomId, setRoomId, setUsers } =
+    useRoom()!;
 
   const createRoomHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,6 +40,10 @@ function InputRoom() {
         maximumAge: 0,
       },
     );
+    listenforLocationUpdate(setUsers);
+    return () => {
+      socket.off("userLeft");
+    };
   }, [window.location.pathname]);
   return (
     <div className="flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
