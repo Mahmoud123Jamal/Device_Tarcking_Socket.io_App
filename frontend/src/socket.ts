@@ -14,9 +14,7 @@ export const sendLocationUpdate = (locationData: {
 }) => {
   socket.emit("locationUpdate", locationData);
 };
-export const listenforLocationUpdate = (
-  callback: (locationData: { latitude: number; longitude: number }) => void,
-) => {
+export const listenforLocationUpdate = (callback: (data: string[]) => void) => {
   socket.on("userLeft", callback);
 };
 export const disconnectSocket = () => {
