@@ -1,52 +1,21 @@
-import { useEffect } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useRoom } from "../context/RoomContext";
-import socket, { joinRoom, listenforLocationUpdate } from "../socket";
-import { sendLocationUpdate } from "../socket";
+
 function InputRoom() {
-  const { setRoomInput, roomInput, getRoomId, setRoomId, setUsers } =
-    useRoom()!;
+  const { setRoomInput, roomInput } = useRoom();
+  const navigate = useNavigate();
 
   const createRoomHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (roomInput.trim() === "") return;
-    window.location.href = `/room/${encodeURIComponent(roomInput.trim())}`;
+    const cleanRoomId = roomInput.trim();
+    if (cleanRoomId === "") return;
+
+    navigate(`/room/${encodeURIComponent(cleanRoomId)}`);
   };
 
-  useEffect(() => {
-    const currentRoomId = getRoomId();
-    if (!currentRoomId) return;
-    setRoomId(currentRoomId);
-    joinRoom(currentRoomId);
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      return;
-    }
-
-    const handleLocationSuccess = (position: GeolocationPosition) => {
-      const { latitude, longitude } = position.coords;
-      sendLocationUpdate({ latitude, longitude });
-    };
-
-    const handleLocationError = (error: GeolocationPositionError) => {
-      console.error("Error getting location:", error.message);
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      handleLocationSuccess,
-      handleLocationError,
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      },
-    );
-    listenforLocationUpdate(setUsers);
-    return () => {
-      socket.off("userLeft");
-    };
-  }, [window.location.pathname]);
   return (
-    <div className="flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-[80vh] flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
         <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4 md:mb-6 text-center">
           Join a Tracking Room
