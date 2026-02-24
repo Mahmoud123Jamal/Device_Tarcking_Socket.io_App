@@ -1,17 +1,8 @@
 import React from "react";
-
-interface User {
-  userId: string;
-  distance?: string | number;
-  eta?: string | number;
-}
-
-interface UserCardProps {
-  user: User;
-}
+import type { UserCardProps } from "../types/userCard";
 
 const UserCard: React.FC<UserCardProps> = ({ user }) => (
-  <div className="p-4 bg-white border border-green-100 rounded-xl hover:bg-green-50 transition-colors shadow-sm">
+  <div className="p-4 bg-white border border-green-100 rounded-xl hover:bg-green-50 transition-colors shadow-sm cursor-pointer">
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold shrink-0">
         {user.userId.charAt(0).toUpperCase()}
