@@ -11,9 +11,9 @@ declare module "socket.io" {
 let userRooms: UserRooms = {};
 
 export const handleSocketConnection = (io: Server, socket: Socket): void => {
-  console.log("A user connected:", socket.id);
-
   socket.on("joinRoom", (roomId: string) => {
+    if (!roomId || roomId === "null") return;
+
     socket.join(roomId);
     socket.roomId = roomId;
 
@@ -23,62 +23,62 @@ export const handleSocketConnection = (io: Server, socket: Socket): void => {
 
     userRooms[roomId][socket.id] = {
       joinedAt: new Date(),
+      location: undefined,
     };
-
-    console.log(`User ${socket.id} added to room ${roomId}`);
   });
 
   socket.on(
     "locationUpdate",
     async (locationData: { latitude: number; longitude: number }) => {
       const roomId = socket.roomId;
-      if (!roomId) return;
-      const userData = userRooms[roomId]?.[socket.id];
-      if (userData) {
-        userData.location = {
+      if (!roomId || !userRooms[roomId]) return;
+
+      if (userRooms[roomId][socket.id]) {
+        userRooms[roomId][socket.id].location = {
           latitude: locationData.latitude,
           longitude: locationData.longitude,
         };
-
-        socket.to(roomId).emit("userMoved", {
-          socketId: socket.id,
-          location: userData.location,
-        });
       }
-      // calculate distance for all users in the room
+
       const users = userRooms[roomId];
+      const currentUserData = users[socket.id];
+
       const updateUser = await Promise.all(
         Object.keys(users).map(async (id) => {
           let distance = null;
           let duration = null;
 
-          if (users[socket.id] && users[id] && id !== socket.id) {
+          const targetUser = users[id];
+
+          if (
+            id !== socket.id &&
+            currentUserData?.location &&
+            targetUser?.location
+          ) {
             try {
               const res = await calculateDistanceAndEta(
-                users[id],
-                users[socket.id],
+                targetUser,
+                currentUserData,
               );
-
               distance = res.distance;
               duration = res.duration;
             } catch (err) {
-              console.error("Error calculating distance:", err);
-              distance = "N/A";
-              duration = "N/A";
+              console.error("Calculation error:", err);
             }
           }
 
           return {
             id,
-            ...users[id],
-            latitude: users[id].location?.latitude || null,
-            longitude: users[id].location?.longitude || null,
+            joinedAt: targetUser?.joinedAt,
+            latitude: targetUser?.location?.latitude || null,
+            longitude: targetUser?.location?.longitude || null,
             distance,
             duration,
           };
         }),
       );
-      io.to(roomId).emit("locationUpdate", updateUser); // user offline handling
+
+      io.to(roomId).emit("locationUpdate", updateUser);
     },
   );
 
@@ -87,13 +87,11 @@ export const handleSocketConnection = (io: Server, socket: Socket): void => {
 
     if (roomId && userRooms[roomId]) {
       delete userRooms[roomId][socket.id];
-
       socket.to(roomId).emit("userLeft", { socketId: socket.id });
 
       if (Object.keys(userRooms[roomId]).length === 0) {
         delete userRooms[roomId];
       }
     }
-    console.log("User disconnected and tracking cleaned up");
   });
 };
