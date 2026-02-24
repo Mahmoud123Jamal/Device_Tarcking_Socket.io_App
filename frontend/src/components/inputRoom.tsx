@@ -35,7 +35,7 @@ function InputRoom() {
 
           <button
             type="submit"
-            className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-3 md:py-4 rounded-lg shadow-lg hover:shadow-sky-200 transition-all duration-300 transform active:scale-[0.98] text-sm md:text-base"
+            className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-3 md:py-4 rounded-lg shadow-lg hover:shadow-sky-200 transition-all duration-300 transform active:scale-[0.98] text-sm md:text-base cursor-pointer"
           >
             Join Room
           </button>
