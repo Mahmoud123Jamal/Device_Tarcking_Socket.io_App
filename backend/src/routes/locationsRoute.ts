@@ -6,33 +6,48 @@ import {
 
 const router = Router();
 
-router.post("/locations", async (req: Request, res: Response) => {
+const isValidCoords = (loc: any): boolean =>
+  typeof loc?.latitude === "number" && typeof loc?.longitude === "number";
+
+router.post("/calculate-distance", async (req: Request, res: Response) => {
   try {
     const { origin, dest } = req.body;
 
-    if (!origin?.location || !dest?.location) {
-      return res.status(400).json({ error: "Missing coordinates in body" });
+    if (!isValidCoords(origin?.location) || !isValidCoords(dest?.location)) {
+      return res.status(400).json({ error: "Invalid coordinates format" });
     }
 
     const result = await calculateDistanceAndEta(origin, dest);
-    res.json(result);
+    return res.json(result);
   } catch (error) {
-    res.status(500).json({ error: "Failed to calculate distance" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.post("/route-geometry", async (req: Request, res: Response) => {
+router.post("/route", async (req: Request, res: Response) => {
   try {
-    const { origin, dest } = req.body;
+    const { start, end } = req.body;
 
-    if (!origin?.location || !dest?.location) {
-      return res.status(400).json({ error: "Missing coordinates in body" });
+    if (!start?.lat || !start?.lng || !end?.lat || !end?.lng) {
+      return res.status(400).json({ error: "Missing start or end points" });
     }
 
+    const origin = {
+      location: { latitude: Number(start.lat), longitude: Number(start.lng) },
+    };
+    const dest = {
+      location: { latitude: Number(end.lat), longitude: Number(end.lng) },
+    };
+
     const geometry = await getRoute(origin, dest);
-    res.json(geometry);
+
+    if (!geometry) {
+      return res.status(404).json({ error: "No route found" });
+    }
+
+    return res.json(geometry);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch route geometry" });
+    return res.status(500).json({ error: "Internal Routing Error" });
   }
 });
 
