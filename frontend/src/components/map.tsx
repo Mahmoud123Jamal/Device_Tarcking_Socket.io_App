@@ -34,7 +34,7 @@ function Map() {
   const API_BASE_URL =
     window.location.hostname === "localhost"
       ? "http://localhost:3001"
-      : "https://where-to-dliver-app.onrender.com";
+      : "https://WhereImApp.vercel.app";
 
   useEffect(() => {
     if (!roomId || !isTrackingEnabled) return;
