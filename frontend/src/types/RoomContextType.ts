@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { User } from "./User";
 
 export interface RoomContextType {
@@ -8,7 +9,7 @@ export interface RoomContextType {
   users: User[];
   setUsers: (users: User[]) => void;
   selectedUser: User | null;
-  setSelectedUser: (user: User | null) => void;
+  setSelectedUser: Dispatch<SetStateAction<User | null>>;
   route: any;
   setRoute: (route: any) => void;
   loadingRoute: boolean;
