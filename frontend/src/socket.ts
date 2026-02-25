@@ -1,17 +1,27 @@
 import { io, Socket } from "socket.io-client";
 import type { User } from "./types/User";
 
-const URL = (import.meta.env.VITE_URL as string) || "http://localhost:3001";
+const SOCKET_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "https://WhereImApp.vercel.app";
 
-const socket: Socket = io(URL, {
+const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 5,
-  transports: ["websocket"],
+  reconnectionAttempts: 10,
+
+  transports: ["polling", "websocket"],
+  timeout: 10000,
+  withCredentials: true,
 });
 
 export const joinRoom = (roomId: string) => {
-  socket.emit("joinRoom", roomId);
+  if (socket.connected) {
+    socket.emit("joinRoom", roomId);
+  } else {
+    socket.once("connect", () => socket.emit("joinRoom", roomId));
+  }
 };
 
 export const sendLocationUpdate = (locationData: {
