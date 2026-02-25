@@ -6,15 +6,16 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { Request, Response } from "express";
 import { handleSocketConnection } from "./socket/handlers/socketHandlers";
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 // socket connection
 io.on("connection", (socket) => {
