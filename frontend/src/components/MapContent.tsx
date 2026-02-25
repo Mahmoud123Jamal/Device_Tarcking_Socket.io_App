@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -11,14 +11,15 @@ import L from "leaflet";
 import { type User } from "../types/User";
 import type { MapContentProps } from "../types/MapContentProps";
 
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
 });
 
 const MapContent: React.FC<MapContentProps> = ({
@@ -28,23 +29,6 @@ const MapContent: React.FC<MapContentProps> = ({
   selectedUser,
   selectedUserId,
 }) => {
-  const [currentLocation, setCurrentLocation] = useState<
-    [number, number] | null
-  >(null);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentLocation([
-          position.coords.latitude,
-          position.coords.longitude,
-        ]);
-      },
-      (error) => console.error("Location access denied", error),
-      { enableHighAccuracy: true },
-    );
-  }, []);
-
   function FitBounds({
     me,
     selectedUser,
@@ -76,26 +60,24 @@ const MapContent: React.FC<MapContentProps> = ({
     );
   }
 
-  // استخدام أيقونة احتياطية إذا فشل تحميل mypin.png
   const getIcon = (isSelected: boolean, isMe: boolean) =>
     new L.Icon({
       iconUrl: isMe
         ? "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
         : isSelected
           ? "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png"
-          : "/mypin.png",
+          : "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
       iconSize: isSelected ? [35, 45] : [25, 41],
       iconAnchor: isSelected ? [17, 45] : [12, 41],
       popupAnchor: [1, -34],
-      shadowUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+      shadowUrl: markerShadow,
       shadowSize: [41, 41],
     });
 
   return (
     <MapContainer
-      center={currentLocation || [30.0444, 31.2357]}
-      zoom={15}
+      center={[30.0444, 31.2357]}
+      zoom={13}
       style={{ height: "100vh", width: "100%" }}
       className="z-0"
     >
@@ -115,7 +97,6 @@ const MapContent: React.FC<MapContentProps> = ({
         .filter((u) => u.userId !== mySocketId)
         .map((user) => {
           if (!user.lat || !user.lng) return null;
-
           const dist = parseFloat(String(user.distance));
           const time = parseFloat(String(user.eta));
 

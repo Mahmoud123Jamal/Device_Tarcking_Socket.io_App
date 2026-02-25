@@ -14,10 +14,10 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => (
         {user.distance ? (
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] font-medium px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
-              {user.distance} km
+              {user.distance}
             </span>
             <span className="text-[10px] text-gray-400 font-medium">
-              {user.eta} min
+              {user.eta}
             </span>
           </div>
         ) : (
